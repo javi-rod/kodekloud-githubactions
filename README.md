@@ -1,2 +1,2 @@
-# kodekloud-githubactios
+# kodekloud-githubactions
 Ejemplos Github Actions KodeKloud
