@@ -16,4 +16,4 @@ jobs:
                    cat README.md
             
             - name: Generate ASCII Artwork
-              run: cosway -f dragon "Run for cover" >> dragon.txt
+              run: cowsay -f dragon "Run for cover" >> dragon.txt
