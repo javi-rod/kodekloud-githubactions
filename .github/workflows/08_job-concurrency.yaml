@@ -1,8 +1,7 @@
-name: Exploring Variables and Secrets using cron
+name: Using Job concurrency
 
 on:
-  schedule:
-    - cron: '*/1 * * * *'
+  workflow_dispatch: 
   
 env:
     CONTAINER_REGISTRY: docker.io
@@ -24,7 +23,14 @@ jobs:
 
     deploy:
         needs: docker
+        concurrency: 
+            group: production-deploy
+            # cancel-in-progress: false - Espera a que termine el JOB del otro flujo en ejecución
+            # cancel-in-progress: true - Cancela el JOB de este flujo
+            cancel-in-progress: false
         runs-on: ubuntu-latest
         steps:
             - name: Docker Run
-              run: echo docker run -d -p 8080:80 $CONTAINER_REGISTRY/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+              run: |
+               echo docker run -d -p 8080:80 $CONTAINER_REGISTRY/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+               sleep 300s

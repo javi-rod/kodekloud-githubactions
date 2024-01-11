@@ -1,4 +1,4 @@
-name: Exploring Variables and Secrets manual
+name: Triggering a workflow manual
 
 on:
   workflow_dispatch: 
