@@ -1,0 +1,38 @@
+name: Timeout for Jobs and Steps
+
+on:
+  workflow_dispatch: 
+  
+env:
+    CONTAINER_REGISTRY: docker.io
+    IMAGE_NAME: github-actions-nginx
+
+jobs:
+    docker:
+     
+        runs-on: ubuntu-latest
+        steps:
+            - name: Docker Build
+              run: echo docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+
+            - name: Docker Login
+              run: echo docker login --username=${{ vars.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Docker Publish
+              run: echo docker push $CONTAINER_REGISTRY/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+
+    deploy:
+        #timeout-minutes: 1 - A nivel de JOB aplica a todos los steps
+        needs: docker
+        concurrency: 
+            group: production-deploy
+            # cancel-in-progress: false - Espera a que termine el JOB del otro flujo en ejecución
+            # cancel-in-progress: true - Cancela el JOB de este flujo
+            cancel-in-progress: false
+        runs-on: ubuntu-latest
+        steps:
+            - name: Docker Run
+              timeout-minutes: 1
+              run: |
+               echo docker run -d -p 8080:80 $CONTAINER_REGISTRY/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+               sleep 300s
